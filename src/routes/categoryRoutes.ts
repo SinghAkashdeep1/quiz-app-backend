@@ -1,13 +1,13 @@
 import express from 'express';
 import { getCategories, createCategory, updateCategory, deleteCategory, getIcons } from '../controllers/categoryController';
-import { protect } from '../middleware/authMiddleware';
+import { protect, admin, optionalProtect } from '../middleware/authMiddleware';
 
 const router = express.Router();
 
-router.get('/', getCategories);
 router.get('/icons', getIcons);
-router.post('/', protect, createCategory);
-router.put('/:id', protect, updateCategory);
-router.delete('/:id', protect, deleteCategory);
+router.get('/', optionalProtect, getCategories); // optionalProtect used to get req.user for favorites
+router.post('/', protect, admin, createCategory);
+router.put('/:id', protect, admin, updateCategory);
+router.delete('/:id', protect, admin, deleteCategory);
 
 export default router;

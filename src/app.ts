@@ -8,6 +8,9 @@ import categoryRoutes from './routes/categoryRoutes';
 import questionRoutes from './routes/questionRoutes';
 import adminRoutes from './routes/adminRoutes';
 import uploadRoutes from './routes/uploadRoutes';
+import userRoutes from './routes/userRoutes';
+import gameRoutes from './routes/gameRoutes';
+import analyticsRoutes from './routes/analyticsRoutes';
 import { errorHandler } from './middleware/errorMiddleware';
 
 dotenv.config();
@@ -28,35 +31,11 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS
   : ['http://localhost:3000', 'http://localhost:8081'];
 
 app.use(cors({
-  origin: (origin, callback) => {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-    
-    // In production, strictly follow allowedOrigins
-    if (!isDevelopment) {
-      if (allowedOrigins.indexOf(origin) !== -1 || allowedOrigins.includes('*')) {
-        callback(null, true);
-      } else {
-        callback(new Error('Not allowed by CORS'));
-      }
-      return;
-    }
-
-    // In development, be more permissive but still check patterns if desired
-    // Allow localhost, 127.0.0.1, and common local network IPs (10.*, 192.168.*, 172.*)
-    const isLocal = origin.startsWith('http://localhost') || 
-                    origin.startsWith('http://127.0.0.1') || 
-                    origin.match(/^http:\/\/(10|192\.168|172)\.\d+\.\d+\.\d+/);
-
-    if (isLocal || allowedOrigins.includes('*')) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS in development'));
-    }
-  },
+  origin: true,
+  credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-guest-id', 'Accept', 'X-Requested-With', 'X-HTTP-Method-Override'],
+  exposedHeaders: ['Content-Range', 'X-Content-Range'],
 }));
 app.use(express.json());
 
@@ -65,6 +44,9 @@ app.use('/api/categories', categoryRoutes);
 app.use('/api/questions', questionRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/game', gameRoutes);
+app.use('/api/analytics', analyticsRoutes);
 
 const __dirname_path = path.resolve();
 app.use('/uploads', express.static(path.join(__dirname_path, '/uploads')));
