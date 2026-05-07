@@ -76,10 +76,10 @@ export const getCategoryPerformance = async (req: Request, res: Response) => {
           as: 'category'
         }
       },
-      { $unwind: { path: '$category', preserveNullAndEmptyArrays: true } },
+      { $unwind: '$category' },
       {
         $project: {
-          name: { $ifNull: ['$category.name', 'Deleted Category'] },
+          name: '$category.name',
           difficulty: '$_id.difficulty',
           totalPlays: 1,
           avgAccuracy: 1,

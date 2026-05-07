@@ -3,6 +3,8 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import User from '../models/User';
 import { AuthRequest } from '../middleware/authMiddleware';
+import { sendResetPasswordEmail } from '../services/emailService';
+import crypto from 'crypto';
 
 const generateToken = (id: string) => {
   return jwt.sign({ id }, process.env.JWT_SECRET || 'secret', {
@@ -140,9 +142,72 @@ export const getUserProfile = async (req: AuthRequest, res: Response) => {
         totalQuestionsAttempted: user.totalQuestionsAttempted,
         totalCorrectAnswers: user.totalCorrectAnswers
       },
-      streaks: user.streaks
+      streaks: user.streaks,
+      completedLevels: user.completedLevels,
+      categoryLevels: user.categoryLevels
     });
   } else {
     res.status(404).json({ message: 'User not found' });
+  }
+};
+
+// @desc    Forgot password - send reset code
+// @route   POST /api/users/forgot-password
+export const forgotPassword = async (req: Request, res: Response, next: NextFunction) => {
+  const { email } = req.body;
+
+  try {
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User with this email does not exist' });
+    }
+
+    // Generate 6-digit code
+    const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
+    
+    // Set token and expiry (10 minutes)
+    user.resetPasswordToken = resetCode;
+    user.resetPasswordExpires = new Date(Date.now() + 10 * 60 * 1000);
+    
+    await user.save();
+
+    await sendResetPasswordEmail(email, resetCode);
+
+    res.json({ message: 'Reset code sent to email' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Reset password
+// @route   POST /api/users/reset-password
+export const resetPassword = async (req: Request, res: Response, next: NextFunction) => {
+  const { email, code, newPassword } = req.body;
+
+  try {
+    const user = await User.findOne({
+      email,
+      resetPasswordToken: code,
+      resetPasswordExpires: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return res.status(400).json({ message: 'Invalid or expired reset code' });
+    }
+
+    // Hash new password
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(newPassword, salt);
+    
+    // Clear reset token fields
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+
+    await user.save();
+
+    res.json({ message: 'Password reset successful' });
+  } catch (error) {
+    next(error);
   }
 };

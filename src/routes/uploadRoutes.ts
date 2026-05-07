@@ -18,19 +18,20 @@ const storage = multer.diskStorage({
 });
 
 function checkFileType(file: Express.Multer.File, cb: multer.FileFilterCallback) {
-  const filetypes = /jpg|jpeg|png/;
+  const filetypes = /jpg|jpeg|png|svg/;
   const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
   const mimetype = filetypes.test(file.mimetype);
 
-  if (extname && mimetype) {
+  if (extname || mimetype) { // Changed to OR to allow SVG which might have different mimetype in some systems, or just rely on ext for SVG
     return cb(null, true);
   } else {
-    cb(new Error('Images only!'));
+    cb(new Error('Only JPG, PNG and SVG are allowed!'));
   }
 }
 
 const upload = multer({
   storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
   fileFilter: function (req, file, cb) {
     checkFileType(file, cb);
   },

@@ -1,7 +1,9 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
-import dotenv from 'dotenv';
 import connectDB from './config/db';
 import path from 'path';
 import categoryRoutes from './routes/categoryRoutes';
@@ -11,14 +13,22 @@ import uploadRoutes from './routes/uploadRoutes';
 import userRoutes from './routes/userRoutes';
 import gameRoutes from './routes/gameRoutes';
 import analyticsRoutes from './routes/analyticsRoutes';
+import lifelineRoutes from './routes/lifelineRoutes';
+import translateRoutes from './routes/translateRoutes';
 import { errorHandler } from './middleware/errorMiddleware';
 
-dotenv.config();
-
-const app = express();
+// dotenv.config(); // Removed from here
 
 // Connect to Database
 connectDB();
+
+const app = express();
+
+// Request logging middleware
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+  next();
+});
 
 // Middleware
 app.use(helmet({
@@ -31,7 +41,7 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS
   : ['http://localhost:3000', 'http://localhost:8081'];
 
 app.use(cors({
-  origin: true,
+  origin: (origin, callback) => callback(null, true),
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'x-guest-id', 'Accept', 'X-Requested-With', 'X-HTTP-Method-Override'],
@@ -47,6 +57,9 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/game', gameRoutes);
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/lifeline', lifelineRoutes);
+app.use('/api/game/lifeline', lifelineRoutes);
+app.use('/api/translate', translateRoutes);
 
 const __dirname_path = path.resolve();
 app.use('/uploads', express.static(path.join(__dirname_path, '/uploads')));

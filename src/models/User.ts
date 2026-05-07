@@ -53,6 +53,10 @@ const UserSchema = new mongoose.Schema({
     stars: { type: Number }, // 1, 2, or 3 stars
     completedAt: { type: Date, default: Date.now }
   }],
+  
+  // Password Reset
+  resetPasswordToken: { type: String },
+  resetPasswordExpires: { type: Date },
 }, { timestamps: true });
 
 // Update accuracy before saving

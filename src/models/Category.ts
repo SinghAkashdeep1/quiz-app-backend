@@ -28,12 +28,33 @@ const CategorySchema = new mongoose.Schema({
     medium: { type: Number, default: 20 },
     hard: { type: Number, default: 50 },
   },
+  lifelines: {
+    aiHints: {
+      freePerLevel: { type: Number, default: 1 },
+      coinCost: { type: Number, default: 10 }
+    },
+    fiftyFifty: {
+      freePerLevel: { type: Number, default: 1 },
+      coinCost: { type: Number, default: 10 }
+    },
+    changeQuestion: {
+      freePerLevel: { type: Number, default: 1 },
+      coinCost: { type: Number, default: 10 }
+    },
+    stopTimer: {
+      freePerLevel: { type: Number, default: 1 },
+      coinCost: { type: Number, default: 10 }
+    }
+  },
   translations: {
     type: Map,
-    of: new mongoose.Schema({
-      name: { type: String, required: true }
-    }, { _id: false })
-  }
+    of: {
+      name: { type: String }
+    },
+    default: {}
+  },
+  isArchived: { type: Boolean, default: false },
+  archivedAt: { type: Date }
 }, { timestamps: true });
 
 CategorySchema.index({ name: 1 }, { unique: true });
