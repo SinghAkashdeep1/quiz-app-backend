@@ -16,7 +16,7 @@ const checkUser = async () => {
     }
     await mongoose.disconnect();
   } catch (error) {
-    console.error('Error:', error);
+    console.error('Error: ', error);
   }
 };
 
