@@ -61,7 +61,7 @@ export const getCategoryPerformance = async (req: Request, res: Response) => {
     const performance = await GameSession.aggregate([
       {
         $group: {
-          _id: { categoryId: '$categoryId', difficulty: '$difficulty' },
+          _id: '$categoryId',
           totalPlays: { $sum: 1 },
           avgAccuracy: { $avg: '$accuracy' },
           totalCorrect: { $sum: '$correctAnswers' },
@@ -71,23 +71,23 @@ export const getCategoryPerformance = async (req: Request, res: Response) => {
       {
         $lookup: {
           from: 'categories',
-          localField: '_id.categoryId',
+          localField: '_id',
           foreignField: '_id',
           as: 'category'
         }
       },
       { $unwind: '$category' },
+      { $match: { 'category.isArchived': { $ne: true } } },
       {
         $project: {
           name: '$category.name',
-          difficulty: '$_id.difficulty',
           totalPlays: 1,
           avgAccuracy: 1,
           totalCorrect: 1,
           totalQuestions: 1
         }
       },
-      { $sort: { name: 1, difficulty: 1 } }
+      { $sort: { name: 1 } }
     ]);
 
     res.json(performance);

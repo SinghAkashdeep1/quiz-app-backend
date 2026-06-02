@@ -57,6 +57,13 @@ const UserSchema = new mongoose.Schema({
   // Password Reset
   resetPasswordToken: { type: String },
   resetPasswordExpires: { type: Date },
+
+  // Onboarding
+  onboarding: {
+    type: Map,
+    of: Boolean,
+    default: {}
+  },
 }, { timestamps: true });
 
 // Update accuracy before saving

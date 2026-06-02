@@ -22,7 +22,7 @@ export const getCategories = async (req: any, res: Response, next: NextFunction)
 
     const totalCount = await Category.countDocuments(query);
 
-    let categoriesQuery = Category.find(query).sort({ createdAt: -1 });
+    let categoriesQuery = Category.find(query).sort({ createdAt: -1, _id: 1 });
 
     if (page && limit) {
       const skip = (Number(page) - 1) * Number(limit);

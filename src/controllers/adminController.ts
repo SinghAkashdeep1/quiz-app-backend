@@ -33,29 +33,57 @@ export const loginAdmin = async (req: Request, res: Response) => {
 
 // @desc    Register admin (helper for initial setup)
 export const registerAdmin = async (req: Request, res: Response) => {
-    const { username, email, password } = req.body;
-    try {
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
-        const user = new User({ 
-          username, 
-          email, 
-          password: hashedPassword,
-          role: 'admin' 
-        });
-        await user.save();
-        res.status(201).json({ message: 'Admin registered successfully' });
-    } catch (error) {
-        res.status(400).json({ message: (error as Error).message });
-    }
+  const { username, email, password } = req.body;
+  try {
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+    const user = new User({
+      username,
+      email,
+      password: hashedPassword,
+      role: 'admin'
+    });
+    await user.save();
+    res.status(201).json({ message: 'Admin registered successfully' });
+  } catch (error) {
+    res.status(400).json({ message: (error as Error).message });
+  }
 }
 
 // @desc    Get all users
 // @route   GET /api/admin/users
 export const getUsers = async (req: Request, res: Response) => {
   try {
-    const users = await User.find({ role: { $ne: 'admin' } }).select('-password').sort({ createdAt: -1 });
-    res.json(users);
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const skip = (page - 1) * limit;
+    const search = req.query.search as string;
+
+    const query: any = { role: { $ne: 'admin' } };
+
+    if (search) {
+      query.$or = [
+        { username: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } },
+        { guestId: { $regex: search, $options: 'i' } }
+      ];
+    }
+
+    const [users, totalCount] = await Promise.all([
+      User.find(query)
+        .select('-password')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit),
+      User.countDocuments(query)
+    ]);
+
+    res.json({
+      users,
+      totalCount,
+      totalPages: Math.ceil(totalCount / limit),
+      currentPage: page
+    });
   } catch (error) {
     res.status(500).json({ message: (error as Error).message });
   }

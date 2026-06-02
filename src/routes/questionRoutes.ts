@@ -1,8 +1,8 @@
 import express from 'express';
-import { 
-  getQuestions, getQuestionsByCategory, createQuestion, bulkCreateQuestions, 
+import {
+  getQuestions, getQuestionsByCategory, createQuestion, bulkCreateQuestions,
   updateQuestion, deleteQuestion, updateQuestionStats, getTopQuestions,
-  getArchivedQuestions, restoreQuestion, permanentlyDeleteQuestion 
+  getArchivedQuestions, restoreQuestion, permanentlyDeleteQuestion
 } from '../controllers/questionController';
 import { protect, admin } from '../middleware/authMiddleware';
 

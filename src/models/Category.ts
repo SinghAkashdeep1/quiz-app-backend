@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 
 const CategorySchema = new mongoose.Schema({
-  name: { type: String, required: true },
+  name: { type: String, required: true, trim: true },
   icon: { type: String, required: true }, // URL or icon name
   color: { type: String, default: '#6200EE' }, // Hex color for the theme
   isGuestAllowed: { type: Boolean, default: true },
