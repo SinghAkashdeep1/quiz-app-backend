@@ -80,7 +80,7 @@ CRITICAL RULES:
 
     try {
       console.log('Using Gemini 1.5 Flash for question:', questionId);
-      const model = genAI.getGenerativeModel({ 
+      const model = genAI.getGenerativeModel({
         model: "gemini-flash-latest",
         generationConfig: {
           responseMimeType: "application/json"
@@ -249,13 +249,13 @@ export const useChangeQuestion = async (req: Request, res: Response) => {
     // Find a random question in the same category/difficulty that is not in excludeIds
     // We use aggregate with $sample for true randomness from the pool
     const pool = await Question.aggregate([
-      { 
-        $match: { 
+      {
+        $match: {
           categoryId: new mongoose.Types.ObjectId(categoryId),
           difficulty: currentQuestion.difficulty,
           isAlternative: true,
           _id: { $nin: [...(excludeIds.map((id: string) => new mongoose.Types.ObjectId(id))), currentQuestion._id] }
-        } 
+        }
       },
       { $sample: { size: 1 } }
     ]);
@@ -266,13 +266,13 @@ export const useChangeQuestion = async (req: Request, res: Response) => {
     } else {
       // If pool is empty (all alternatives seen), pick any random alternative excluding the current one
       const fallbackPool = await Question.aggregate([
-        { 
-          $match: { 
+        {
+          $match: {
             categoryId: new mongoose.Types.ObjectId(categoryId),
             difficulty: currentQuestion.difficulty,
             isAlternative: true,
             _id: { $ne: currentQuestion._id }
-          } 
+          }
         },
         { $sample: { size: 1 } }
       ]);
@@ -347,7 +347,7 @@ export const translateQuiz = async (req: Request, res: Response) => {
 
         // 2. Use TranslationService (Google Translate API)
         const translated = await TranslationService.translateQuestion(q, langCode);
-        
+
         // 3. Save back to DB if it's a real question
         if (q._id) {
           const dbQuestion = await Question.findById(q._id);
@@ -395,7 +395,7 @@ export const translateStatic = async (req: Request, res: Response) => {
 
       const translated = await TranslationService.translateText(text, langCode);
       if (translated && translated !== text) {
-        try { await Translation.create({ key: text, lang: langCode, text: translated }); } catch (e) {}
+        try { await Translation.create({ key: text, lang: langCode, text: translated }); } catch (e) { }
       }
       return res.status(200).json({ translation: translated });
     }
@@ -422,7 +422,7 @@ export const translateStatic = async (req: Request, res: Response) => {
           results[toTranslate[i].index] = translated;
 
           if (translated && translated !== original) {
-            try { await Translation.create({ key: original, lang: langCode, text: translated }); } catch (e) {}
+            try { await Translation.create({ key: original, lang: langCode, text: translated }); } catch (e) { }
           }
         }
       }

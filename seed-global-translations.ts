@@ -50,17 +50,17 @@ async function seed() {
   console.log('Connected to MongoDB');
 
   const categories = await Category.find();
-  
+
   for (const cat of categories) {
     const translations = CORE_TRANSLATIONS[cat.name];
     if (translations) {
       console.log(`Seeding translations for category: ${cat.name}`);
-      
+
       const update: any = { translations: cat.translations || new Map() };
-      
+
       for (const [lang, name] of Object.entries(translations)) {
         update.translations.set(lang, { name });
-        
+
         // Also seed global translations table for the name itself
         await Translation.findOneAndUpdate(
           { key: cat.name, lang },
@@ -68,7 +68,7 @@ async function seed() {
           { upsert: true }
         );
       }
-      
+
       await Category.updateOne({ _id: cat._id }, { $set: { translations: update.translations } });
     }
   }

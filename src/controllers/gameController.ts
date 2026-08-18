@@ -37,8 +37,8 @@ export const checkGameAccess = async (req: AuthRequest, res: Response, next: Nex
       let catCredit = updatedUser.categoryCredits.find(c => c.categoryId.toString() === categoryId);
       if (!catCredit) {
         // Initialize and save if not exists
-        catCredit = { 
-          categoryId: categoryId as any, 
+        catCredit = {
+          categoryId: categoryId as any,
           hearts: category.guestHeartsConfig?.maxHearts || 3,
           refillsToday: 0,
           lastRefillAt: new Date(0)
@@ -63,7 +63,7 @@ export const checkGameAccess = async (req: AuthRequest, res: Response, next: Nex
           const referenceTime = (catCredit as any).heartsEmptyAt || catCredit.lastRefillAt || new Date(0);
           const cooldownHours = category.guestHeartsConfig?.refillCooldownHours || 14;
           const hoursSinceRefill = (Date.now() - referenceTime.getTime()) / (1000 * 3600);
-          
+
           if (hoursSinceRefill < cooldownHours) {
             const remaining = Math.ceil(cooldownHours - hoursSinceRefill);
             return res.status(403).json({
@@ -75,6 +75,7 @@ export const checkGameAccess = async (req: AuthRequest, res: Response, next: Nex
         }
 
         return res.status(403).json({
+
           message: 'You have run out of hearts for this category! Please refill to continue.',
           code: 'NO_CREDITS'
         });
@@ -275,7 +276,7 @@ export const submitGame = async (req: AuthRequest, res: Response, next: NextFunc
       // --- USER LOGIC (Coins) ---
       if (updatedUser.role !== 'guest') {
         const incorrect = questionsAttempted - correctAnswers;
-        const penaltyPerWrong = 5; 
+        const penaltyPerWrong = 5;
         updatedUser.coins -= (incorrect * penaltyPerWrong);
       }
 
@@ -418,7 +419,7 @@ export const refillCredits = async (req: AuthRequest, res: Response, next: NextF
       // Check Daily Limit
       const today = new Date().toDateString();
       const lastRefillDay = catCredit.lastRefillDate ? catCredit.lastRefillDate.toDateString() : '';
-      
+
       if (lastRefillDay !== today) {
         catCredit.refillsToday = 0;
       }
@@ -516,7 +517,7 @@ export const saveProgress = async (req: AuthRequest, res: Response, next: NextFu
     }
 
     (catCredit as any).progressIndex = currentIndex;
-    
+
     if (currentHearts !== undefined) {
       catCredit.hearts = currentHearts;
     }

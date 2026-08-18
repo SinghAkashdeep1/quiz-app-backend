@@ -2,34 +2,34 @@ import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
 dotenv.config();
 
-console.log('Initializing SMTP Transporter with:', {
-  host: process.env.SMTP_HOST || 'smtp.gmail.com',
-  port: process.env.SMTP_PORT || '587',
-  user: process.env.SMTP_USER,
-  secure: process.env.SMTP_SECURE === 'true'
-});
+// console.log('Initializing SMTP Transporter with:', {
+//   host: process.env.SMTP_HOST || 'smtp.gmail.com',
+//   port: process.env.SMTP_PORT || '587',
+//   user: process.env.SMTP_USER,
+//   secure: process.env.SMTP_SECURE === 'true'
+// });
 
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST || 'smtp.gmail.com',
-  port: parseInt(process.env.SMTP_PORT || '587'),
-  secure: process.env.SMTP_SECURE === 'true',
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-  tls: {
-    rejectUnauthorized: false
-  }
-});
+// const transporter = nodemailer.createTransport({
+//   host: process.env.SMTP_HOST || 'smtp.gmail.com',
+//   port: parseInt(process.env.SMTP_PORT || '587'),
+//   secure: process.env.SMTP_SECURE === 'true',
+//   auth: {
+//     user: process.env.SMTP_USER,
+//     pass: process.env.SMTP_PASS,
+//   },
+//   tls: {
+//     rejectUnauthorized: false
+//   }
+// });
 
 // Verify connection configuration
-transporter.verify((error, success) => {
-  if (error) {
-    console.error('SMTP Transporter Verification Failed:', error);
-  } else {
-    console.log('SMTP Server is ready to take our messages');
-  }
-});
+// transporter.verify((error, success) => {
+//   if (error) {
+//     console.error('SMTP Transporter Verification Failed:', error);
+//   } else {
+//     console.log('SMTP Server is ready to take our messages');
+//   }
+// });
 
 export const sendResetPasswordEmail = async (email: string, code: string) => {
   console.log(`Attempting to send reset email to: ${email}`);
@@ -55,9 +55,9 @@ export const sendResetPasswordEmail = async (email: string, code: string) => {
   };
 
   try {
-    const info = await transporter.sendMail(mailOptions);
-    console.log(`Reset email sent to ${email}. MessageId: ${info.messageId}`);
-    return info;
+    // const info = await transporter.sendMail(mailOptions);
+    console.log(`[MOCK] Reset email would have been sent to ${email}.`);
+    return { messageId: 'mock-id' };
   } catch (error) {
     console.error('Detailed SMTP Error:', error);
     if (error instanceof Error) {
